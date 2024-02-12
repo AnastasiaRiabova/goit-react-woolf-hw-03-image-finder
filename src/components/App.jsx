@@ -24,15 +24,11 @@ export default class App extends Component {
     status: statusList.idle,
   };
 
-  componentDidMount() {
-    this.handleGetImages();
-  }
-
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.searchQuery !== this.state.searchQuery) {
-      this.setState({ images: [] });
-      this.handleGetImages();
-    } else if (prevState.currentPage !== this.state.currentPage) {
+    if (
+      prevState.searchQuery !== this.state.searchQuery ||
+      prevState.currentPage !== this.state.currentPage
+    ) {
       this.handleGetImages();
     }
   }
@@ -50,26 +46,20 @@ export default class App extends Component {
       .catch(error => this.setState({ error, status: statusList.error }));
   };
 
-  handleSubmit = event => {
-    event.preventDefault();
-    if (this.state.searchQuery !== event.target.serach.value) {
-      this.setState({ searchQuery: event.target.serach.value, currentPage: 1 });
-      event.target.serach.value = '';
+  handleSubmit = value => {
+    if (this.state.searchQuery.toLowerCase() === value.toLowerCase()) {
+      alert('Try to search with new value, this already on you page');
+      return;
+    }
+    if (this.state.searchQuery !== value) {
+      this.setState({ searchQuery: value, currentPage: 1 });
       window.scrollTo(0, 0);
-    } else if (this.state.searchQuery === event.target.serach.value) {
-      this.setState(prevState => ({
-        currentPage: prevState.currentPage + 1,
-      }));
-      event.target.serach.value = '';
     }
   };
 
-  setModalImg = id => {
-    const { largeImageURL, tags } = this.state.images.find(
-      images => images.id === id
-    );
+  setModalImg = ({ tags, largeImageURL }) => {
     this.setState({
-      imageModal: { largeImageURL: largeImageURL, tags: tags },
+      imageModal: { largeImageURL, tags },
       isOpen: true,
     });
   };
@@ -102,11 +92,17 @@ export default class App extends Component {
           <ImageGallery images={images} setModalImg={this.setModalImg} />
         ) : (
           <div className="container">
-            <h1>There are no images for your request</h1>
-            <p>
-              Sorry, we couldn't find any images that match your search. Please
-              try again with different keywords.
-            </p>
+            {this.state.searchQuery.length === 0 ? (
+              <h1>Search to find some images</h1>
+            ) : (
+              <>
+                <h1>There are no images for your request</h1>
+                <p>
+                  Sorry, we couldn't find any images that match your search.
+                  Please try again with different keywords.
+                </p>
+              </>
+            )}
           </div>
         )}
         {resultLength > images.length && (
