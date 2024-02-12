@@ -52,7 +52,7 @@ export default class App extends Component {
       return;
     }
     if (this.state.searchQuery !== value) {
-      this.setState({ searchQuery: value, currentPage: 1 });
+      this.setState({ searchQuery: value, currentPage: 1, images: [] });
       window.scrollTo(0, 0);
     }
   };
